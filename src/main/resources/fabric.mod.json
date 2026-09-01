@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "id": "musicblock",
+  "version": "${version}",
+  "name": "MusicBlock",
+  "description": "",
+  "authors": [],
+  "contact": {},
+  "license": "All-Rights-Reserved",
+  "icon": "assets/musicblock/icon.png",
+  "environment": "server",
+  "entrypoints": {
+    "main": [
+      "com.lukasabbe.musicblock.Musicblock"
+    ]
+  },
+  "mixins": [
+    "musicblock.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric-api": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}
