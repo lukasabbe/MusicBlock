@@ -29,10 +29,8 @@ import java.util.*;
 public class PlatformHandler {
 
     public static List<Platform> platforms = new ArrayList<>();
-    private static Random rnd = new Random();
+    private static final Random rnd = new Random();
     private static Platform activePlatform = null;
-
-    public static final int PLATFORM_SIZE = 26;
 
     public static void init(){
         Path gamePath = FabricLoader.getInstance().getGameDir();
@@ -47,7 +45,6 @@ public class PlatformHandler {
             List<Block> blocks = getAllBlocksInStructure(template);
             platforms.add(new Platform(blocks, template));
         }
-
     }
 
 
@@ -72,7 +69,7 @@ public class PlatformHandler {
 
     public static void removeOtherBlocks(ServerLevel level, Block block){
         BlockPos firstPos = Config.CONFIG.platformPos.getBlockPos();
-        BlockPos secondPos = firstPos.immutable().offset(PLATFORM_SIZE - 1, 0, PLATFORM_SIZE - 1);
+        BlockPos secondPos = firstPos.immutable().offset(Config.CONFIG.platFormSize - 1, 0, Config.CONFIG.platFormSize - 1);
         Iterable<BlockPos> area = BlockPos.betweenClosed(firstPos, secondPos);
         for(BlockPos pos : area){
             if(!level.getBlockState(pos).is(block)){

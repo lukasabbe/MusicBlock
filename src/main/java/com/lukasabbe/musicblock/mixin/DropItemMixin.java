@@ -19,7 +19,7 @@ public abstract class DropItemMixin {
 
     @Inject(method = "handlePlayerAction", at=@At("HEAD"), cancellable = true)
     private void preventItemDrop(ServerboundPlayerActionPacket packet, CallbackInfo ci){
-        if(packet.getAction() == ServerboundPlayerActionPacket.Action.DROP_ITEM || packet.getAction() == ServerboundPlayerActionPacket.Action.DROP_ALL_ITEMS){
+        if(packet.getAction() == ServerboundPlayerActionPacket.Action.DROP_ITEM || packet.getAction() == ServerboundPlayerActionPacket.Action.DROP_ALL_ITEMS || packet.getAction() == ServerboundPlayerActionPacket.Action.SWAP_ITEM_WITH_OFFHAND){
             if(!this.player.gameMode.isCreative()) {
                 ci.cancel();
                 this.player.inventoryMenu.sendAllDataToRemote();

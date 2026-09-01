@@ -10,7 +10,9 @@ import net.minecraft.network.chat.Component;
 public class SpawnPlatformCommand {
 
     public static LiteralArgumentBuilder<CommandSourceStack> getCommand() {
-        return Commands.literal("spawnplatform").executes(SpawnPlatformCommand::execute);
+        return Commands
+                .literal("spawnplatform")
+                .executes(SpawnPlatformCommand::execute);
     }
 
     private static int execute(CommandContext<CommandSourceStack> commandSourceStackCommandContext) {

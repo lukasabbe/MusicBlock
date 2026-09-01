@@ -10,7 +10,17 @@ import net.minecraft.server.permissions.Permissions;
 
 public class MusicGameCommand {
     public static LiteralArgumentBuilder<CommandSourceStack> getCommand() {
-        return Commands.literal("music").requires(source -> source.permissions().hasPermission(Permissions.COMMANDS_MODERATOR)).then(Commands.literal("start").executes(MusicGameCommand::startGame));
+        return Commands
+                .literal("music")
+                .requires(source -> source.permissions().hasPermission(Permissions.COMMANDS_MODERATOR))
+                .then(Commands.literal("start").executes(MusicGameCommand::startGame))
+                .then(Commands.literal("reset").executes(MusicGameCommand::resetGame));
+    }
+
+    private static int resetGame(CommandContext<CommandSourceStack> commandSourceStackCommandContext) {
+        GameHandler.resetGameEvent();
+        commandSourceStackCommandContext.getSource().sendSuccess(() -> Component.literal("Forced reset"), false);
+        return 1;
     }
 
     private static int startGame(CommandContext<CommandSourceStack> commandSourceStackCommandContext) {

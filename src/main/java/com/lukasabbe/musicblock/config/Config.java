@@ -17,6 +17,10 @@ public class Config {
     private static final Gson GSON = new Gson();
     public ConfigPos platformPos = new ConfigPos(0, 0, 0);
     public ConfigPos spawnPos = new ConfigPos(0,0,0);
+    public int platFormSize = 26;
+    public long startDelayMs = 10000;
+    public double decayFactor = 0.8d;
+    public long minDelayMs = 1000;
 
 
     public static void loadConfig(){
