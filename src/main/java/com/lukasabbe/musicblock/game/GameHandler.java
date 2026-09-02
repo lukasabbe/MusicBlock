@@ -1,6 +1,7 @@
 package com.lukasabbe.musicblock.game;
 
 import com.lukasabbe.musicblock.config.Config;
+import com.lukasabbe.musicblock.leaderboard.LeaderBoard;
 import com.lukasabbe.musicblock.music.MusicHandler;
 import com.lukasabbe.musicblock.platform.PlatformHandler;
 import it.unimi.dsi.fastutil.ints.IntList;
@@ -69,6 +70,7 @@ public class GameHandler {
     }
 
     public static void startGame(){
+        countDownToStart = false;
         BlockPos platformPos = Config.CONFIG.platformPos.getBlockPos();
 
         BlockPos startPos = platformPos.offset(Config.CONFIG.platFormSize/2, 1, Config.CONFIG.platFormSize/2);
@@ -87,7 +89,7 @@ public class GameHandler {
         MusicHandler.play();
         spawningPlatform = true;
         PlatformHandler.spawnRandomPlatform(level);
-        nextBlock = PlatformHandler.getRandomColor();
+        nextBlock = PlatformHandler.getRandomColor(level);
         nextEvent = GameHandler::nextBlockEvent;
         startTime = currentTime;
         nextExecuteTime += 3000;
@@ -158,6 +160,10 @@ public class GameHandler {
                 startClockCountDown = currentTime + 1000 * 45;
             }
             if(countDownToStart){
+                if (minecraftServer.getPlayerList().getPlayerCount() < 2){
+                    minecraftServer.getPlayerList().broadcastSystemMessage(Component.literal("Nedräkning avbröts, behöver minst 2 spelare").withStyle(ChatFormatting.BOLD).withColor(TextColor.RED), false);
+                    countDownToStart = false;
+                }
                 int secondsRemaining = (int) Math.ceil((startClockCountDown - currentTime) / 1000.0);
                 if (secondsRemaining != lastAnnouncedSecond && secondsRemaining >= 0) {
                     lastAnnouncedSecond = secondsRemaining;
@@ -223,6 +229,7 @@ public class GameHandler {
             gameEnded = true;
             nextExecuteTime = currentTime + 5000;
             nextEvent = GameHandler::resetGameEvent;
+            players.forEach(p -> LeaderBoard.addPlayedGame(p.playerUUID, p.getServerPlayer().getName().getString()));
             Optional<GamePlayer> winnerOpt = players.stream().filter(p -> p.alive).findFirst();
             if(winnerOpt.isPresent()){
                 var winner = winnerOpt.get();
@@ -232,10 +239,11 @@ public class GameHandler {
                 BlockPos platformPos = Config.CONFIG.platformPos.getBlockPos();
                 BlockPos startPos = platformPos.offset(Config.CONFIG.platFormSize/2, 1, Config.CONFIG.platFormSize/2);
                 winner.getServerPlayer().teleportTo(startPos.getX(), startPos.getY(), startPos.getZ());
-
+                LeaderBoard.addWinGame(winner.playerUUID, winner.getServerPlayer().getName().getString());
             }else{
                 minecraftServer.getPlayerList().broadcastSystemMessage(Component.literal("Det blev lika").withColor(TextColor.GREEN), false);
             }
+            LeaderBoard.saveLeaderBoard();
             BlockPos pos1 = Config.CONFIG.platformPos.getBlockPos().above();
             BlockPos pos2 = pos1.offset(Config.CONFIG.platFormSize, 0, Config.CONFIG.platFormSize);
             BlockPos pos3 = pos1.offset(0, 0, Config.CONFIG.platFormSize);

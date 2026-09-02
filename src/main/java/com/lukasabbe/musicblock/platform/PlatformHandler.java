@@ -29,7 +29,6 @@ import java.util.*;
 public class PlatformHandler {
 
     public static List<Platform> platforms = new ArrayList<>();
-    private static final Random rnd = new Random();
     private static Platform activePlatform = null;
 
     public static void init(){
@@ -49,7 +48,7 @@ public class PlatformHandler {
 
 
     public static Platform spawnRandomPlatform(ServerLevel level){
-        Platform platform = platforms.get(rnd.nextInt(0, platforms.size()));
+        Platform platform = platforms.get(level.getRandom().nextInt(0, platforms.size()));
         BlockPos pos = Config.CONFIG.platformPos.getBlockPos();
 
         StructurePlaceSettings placeData = new StructurePlaceSettings().setRotation(Rotation.NONE).setMirror(Mirror.NONE).setIgnoreEntities(true);
@@ -59,12 +58,12 @@ public class PlatformHandler {
         return platform;
     }
 
-    public static Block getRandomColor(){
-        return getRandomColor(activePlatform);
+    public static Block getRandomColor(ServerLevel level){
+        return getRandomColor(activePlatform, level);
     }
 
-    public static Block getRandomColor(Platform platform){
-        return platform.blocks().get(rnd.nextInt(0, activePlatform.blocks().size()));
+    public static Block getRandomColor(Platform platform, ServerLevel level){
+        return platform.blocks().get(level.getRandom().nextInt(0, activePlatform.blocks().size()));
     }
 
     public static void removeOtherBlocks(ServerLevel level, Block block){

@@ -17,7 +17,6 @@ import java.util.UUID;
 
 public class MusicHandler {
     public final static List<Music> musicList = new ArrayList<>();
-    private static final Random rnd = new Random();
     private static List<PausableAudioPlayer> audioPlayers = new ArrayList<>();
     public static void init(){
         Path gamePath = FabricLoader.getInstance().getGameDir();
@@ -38,7 +37,7 @@ public class MusicHandler {
     }
 
     public static void playRandomSong(ServerLevel level){
-        var music = musicList.get(rnd.nextInt(0, musicList.size()));
+        var music = musicList.get(level.getRandom().nextInt(0, musicList.size()));
         UUID streamId = UUID.randomUUID();
         for (var player : GameHandler.players){
             VoicechatConnection connection = VoiceChatImp.serverApi.getConnectionOf(player.playerUUID);
