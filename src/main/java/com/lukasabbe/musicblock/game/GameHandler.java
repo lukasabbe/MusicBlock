@@ -56,6 +56,7 @@ public class GameHandler {
     private static boolean countDownToStart = false;
     private static boolean spawningPlatform = true;
     private static boolean gameEnded = false;
+    public static boolean autoStart = true;
 
     public static void init(){
         ServerPlayerEvents.JOIN.register(GameHandler::joinEvent);
@@ -73,9 +74,9 @@ public class GameHandler {
         countDownToStart = false;
         BlockPos platformPos = Config.CONFIG.platformPos.getBlockPos();
 
-        BlockPos startPos = platformPos.offset(Config.CONFIG.platFormSize/2, 1, Config.CONFIG.platFormSize/2);
+        BlockPos startPos = platformPos.offset(Config.CONFIG.platFormSize / 2, 1, Config.CONFIG.platFormSize / 2);
 
-        for(var player : players){
+        for (var player : players) {
             player.getServerPlayer().teleportTo(startPos.getX(), startPos.getY(), startPos.getZ());
             player.alive = true;
         }
@@ -152,39 +153,17 @@ public class GameHandler {
     private static void tickEvent(MinecraftServer minecraftServer) {
         currentTime = System.currentTimeMillis();
 
-
         if(!isGameActive) {
-            if(!countDownToStart && minecraftServer.getPlayerList().getPlayerCount() >= 2){
-                countDownToStart = true;
-                minecraftServer.getPlayerList().broadcastSystemMessage(Component.literal("Music blocks startar om 45s").withStyle(ChatFormatting.BOLD).withColor(TextColor.AQUA), false);
-                startClockCountDown = currentTime + 1000 * 45;
-            }
-            if(countDownToStart){
-                if (minecraftServer.getPlayerList().getPlayerCount() < 2){
-                    minecraftServer.getPlayerList().broadcastSystemMessage(Component.literal("Nedräkning avbröts, behöver minst 2 spelare").withStyle(ChatFormatting.BOLD).withColor(TextColor.RED), false);
-                    countDownToStart = false;
-                }
-                int secondsRemaining = (int) Math.ceil((startClockCountDown - currentTime) / 1000.0);
-                if (secondsRemaining != lastAnnouncedSecond && secondsRemaining >= 0) {
-                    lastAnnouncedSecond = secondsRemaining;
-                    switch (secondsRemaining) {
-                        case 10 -> minecraftServer.getPlayerList().broadcastSystemMessage(Component.literal("Music blocks startar om 10s").withStyle(ChatFormatting.BOLD).withColor(TextColor.AQUA), false);
-                        case 5 -> minecraftServer.getPlayerList().broadcastSystemMessage(Component.literal("Music blocks startar om 5s").withStyle(ChatFormatting.BOLD).withColor(TextColor.AQUA), false);
-                        case 4 -> minecraftServer.getPlayerList().broadcastSystemMessage(Component.literal("Music blocks startar om 4s").withStyle(ChatFormatting.BOLD).withColor(TextColor.AQUA), false);
-                        case 3 -> minecraftServer.getPlayerList().broadcastSystemMessage(Component.literal("Music blocks startar om 3s").withStyle(ChatFormatting.BOLD).withColor(TextColor.AQUA), false);
-                        case 2 -> minecraftServer.getPlayerList().broadcastSystemMessage(Component.literal("Music blocks startar om 2s").withStyle(ChatFormatting.BOLD).withColor(TextColor.AQUA), false);
-                        case 1 -> minecraftServer.getPlayerList().broadcastSystemMessage(Component.literal("Music blocks startar om 1s").withStyle(ChatFormatting.BOLD).withColor(TextColor.AQUA), false);
-                        case 0 -> {
-                            countDownToStart = false;
-                            lastAnnouncedSecond = -1;
-                            startGame();
-                        }
-                    }
+            if(autoStart) countDownTick(minecraftServer);
+            Vec3 spawnPos = Config.CONFIG.spawnPos.getVec3();
+            for(var player : players){
+                var serverPlayer = player.getServerPlayer();
+                if(serverPlayer.getY() <= Config.CONFIG.platformPos.y - 10){
+                    serverPlayer.teleportTo(spawnPos.x, spawnPos.y, spawnPos.z);
                 }
             }
             return;
         }
-
 
         int secondsLeft = (int) Math.ceil((nextExecuteTime - currentTime) / 1000.0);
 
@@ -292,6 +271,39 @@ public class GameHandler {
         item.set(DataComponents.FIREWORKS, fireworks);
         FireworkRocketEntity rocket = new FireworkRocketEntity(level, pos.getX(), pos.getY(), pos.getZ(), item);
         level.addFreshEntity(rocket);
+    }
+
+    private static void countDownTick(MinecraftServer minecraftServer){
+        if(!countDownToStart && minecraftServer.getPlayerList().getPlayerCount() >= 2){
+            countDownToStart = true;
+            minecraftServer.getPlayerList().broadcastSystemMessage(Component.literal("Music blocks startar om 45s").withStyle(ChatFormatting.BOLD).withColor(TextColor.AQUA), false);
+            startClockCountDown = currentTime + 1000 * 45;
+        }
+        if(countDownToStart){
+            if (minecraftServer.getPlayerList().getPlayerCount() < 2){
+                minecraftServer.getPlayerList().broadcastSystemMessage(Component.literal("Nedräkning avbröts, behöver minst 2 spelare").withStyle(ChatFormatting.BOLD).withColor(TextColor.RED), false);
+                countDownToStart = false;
+            }
+            int secondsRemaining = (int) Math.ceil((startClockCountDown - currentTime) / 1000.0);
+            if (secondsRemaining != lastAnnouncedSecond && secondsRemaining >= 0) {
+                lastAnnouncedSecond = secondsRemaining;
+                switch (secondsRemaining) {
+                    case 10 -> minecraftServer.getPlayerList().broadcastSystemMessage(Component.literal("Music blocks startar om 10s").withStyle(ChatFormatting.BOLD).withColor(TextColor.AQUA), false);
+                    case 5 -> minecraftServer.getPlayerList().broadcastSystemMessage(Component.literal("Music blocks startar om 5s").withStyle(ChatFormatting.BOLD).withColor(TextColor.AQUA), false);
+                    case 4 -> minecraftServer.getPlayerList().broadcastSystemMessage(Component.literal("Music blocks startar om 4s").withStyle(ChatFormatting.BOLD).withColor(TextColor.AQUA), false);
+                    case 3 -> minecraftServer.getPlayerList().broadcastSystemMessage(Component.literal("Music blocks startar om 3s").withStyle(ChatFormatting.BOLD).withColor(TextColor.AQUA), false);
+                    case 2 -> minecraftServer.getPlayerList().broadcastSystemMessage(Component.literal("Music blocks startar om 2s").withStyle(ChatFormatting.BOLD).withColor(TextColor.AQUA), false);
+                    case 1 -> minecraftServer.getPlayerList().broadcastSystemMessage(Component.literal("Music blocks startar om 1s").withStyle(ChatFormatting.BOLD).withColor(TextColor.AQUA), false);
+                    case 0 -> {
+                        var music = MusicHandler.getNextSong(level);
+                        minecraftServer.getPlayerList().broadcastSystemMessage(Component.literal("Nu spelas " + music.musicName + " av " + music.artist).withStyle(ChatFormatting.BOLD).withColor(TextColor.GREEN), false);
+                        countDownToStart = false;
+                        lastAnnouncedSecond = -1;
+                        startGame();
+                    }
+                }
+            }
+        }
     }
 
 }

@@ -50,14 +50,14 @@ public class LeaderBoard {
     }
 
     public static void addPlayedGame(UUID player, String userName){
-        Optional<LeaderBoardUser> userOpt = LeaderBoard.LEADER_BOARD.users.stream().filter(p -> p.uuid == player).findFirst();
+        Optional<LeaderBoardUser> userOpt = LeaderBoard.LEADER_BOARD.users.stream().filter(p -> p.uuid.equals(player)).findFirst();
         userOpt.ifPresentOrElse(
                 leaderBoardUser -> leaderBoardUser.gamesPlayed += 1,
                 () -> LeaderBoard.LEADER_BOARD.users.add(new LeaderBoardUser(player, 1, 0, userName))
         );
     }
     public static void addWinGame(UUID player, String userName){
-        Optional<LeaderBoardUser> userOpt = LeaderBoard.LEADER_BOARD.users.stream().filter(p -> p.uuid == player).findFirst();
+        Optional<LeaderBoardUser> userOpt = LeaderBoard.LEADER_BOARD.users.stream().filter(p -> p.uuid.equals(player)).findFirst();
         userOpt.ifPresentOrElse(
                 leaderBoardUser -> leaderBoardUser.gamesWon += 1,
                 () -> LeaderBoard.LEADER_BOARD.users.add(new LeaderBoardUser(player, 0, 1, userName))

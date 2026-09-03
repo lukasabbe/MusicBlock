@@ -14,5 +14,6 @@ public class CommandHandler {
     private static void register(CommandDispatcher<CommandSourceStack> commandSourceStackCommandDispatcher, CommandBuildContext commandBuildContext, Commands.CommandSelection commandSelection) {
         commandSourceStackCommandDispatcher.register(MusicGameCommand.getCommand());
         commandSourceStackCommandDispatcher.register(LeaderBoardCommand.getCommand());
+        commandSourceStackCommandDispatcher.register(VoteNextSongCommand.getCommand());
     }
 }
